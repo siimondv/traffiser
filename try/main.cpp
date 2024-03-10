@@ -4,6 +4,7 @@
 #include <csignal>
 #include <cstring>
 #include <iostream>
+#include <thread>
 
 
 std::string generateRandomIPAddress() {
@@ -16,9 +17,11 @@ std::string generateRandomIPAddress() {
     return oss.str();
 }
 
-void fill_connection_list(std::vector<connection>& connections) {
-    int numConnections = 40;
-    for (int i = 0; i < numConnections; ++i) {
+static std::vector<connection> connections;
+
+void periodicTask() {
+    while (true) {
+        // Your task goes here
         std::string ip1 = generateRandomIPAddress();
         std::string ip2 = generateRandomIPAddress();
         std::string connection = ip1 + "---" + ip2;
@@ -37,20 +40,17 @@ void fill_connection_list(std::vector<connection>& connections) {
 
         newConnection.a_tcp = a_tcp;
         connections.push_back(newConnection);
+
+        std::this_thread::sleep_for(std::chrono::seconds(10));
     }
 }
 
-
-
-
 int
-main(){
-    connection_manager cm;
-    std::vector<connection>& connections = cm.get_connections();
-    fill_connection_list(connections);
-    cm.run();
-
-
-
-
+main() {
+    std::thread t(periodicTask);
+    while (true){
+        for(int i = 0; i< connections.size(); i++){
+            std::cout << connections[i].connection_header << std::endl;
+        }
+    }
 }

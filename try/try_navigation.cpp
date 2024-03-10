@@ -186,8 +186,8 @@ main() {
     std::thread captureThread(nids_run);
 
 
-    std::vector<connection>& connections = cm.get_connections();
-    fill_connection_list(connections);
+    //std::vector<connection>& connections = cm.get_connections();
+    //fill_connection_list(connections);
 
     //std::thread t(periodicTask, std::ref(connections));
     cm.run(); // printing
