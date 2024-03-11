@@ -25,29 +25,7 @@ std::string generateRandomIPAddress() {
     return oss.str();
 }
 
-void fill_connection_list(std::vector<connection> &connections) {
-    int numConnections = 2;
-    for (int i = 0; i < numConnections; ++i) {
-        std::string ip1 = generateRandomIPAddress();
-        std::string ip2 = generateRandomIPAddress();
-        std::string connection = ip1 + "---" + ip2;
-        struct connection newConnection;
-        newConnection.connection_header = connection;
 
-        struct tcp_stream *a_tcp = new tcp_stream;
-        a_tcp->client.data = new char[300 + 1]; // +1 for null terminator
-        a_tcp->server.data = new char[300 + 1];
-
-        std::string client_data_str = "dsaddsadsadsasfkhasufghasiugbyehgfeyahgfydsagfyhdgahgfdahsjgfhdgha\n\nsdjhajshasdjhsdakjghasyhu\njdfsghhfjdgdjhsgsdfgfdshjsdf";
-        std::string server_data_str = "dsaddsadsadsasfkhasufghasiugbyehgfeyahgfydsagfyhdgahgfdahsjgfhdgha\n\nsdjhajshasdjhsdakjghasyhu\njdfsghhfjdgdjhsgsdfgfdshjsdf";
-
-        strcpy(a_tcp->client.data, client_data_str.c_str());
-        strcpy(a_tcp->server.data, server_data_str.c_str());
-
-        newConnection.a_tcp = a_tcp;
-        connections.push_back(newConnection);
-    }
-}
 
 char *
 adres(struct tuple4 addr) {
@@ -138,34 +116,7 @@ unsigned long ip_to_ulong(char b0, char b1, char b2, char b3) {
     p[3] = b3;
     return val;
 }
-void periodicTask(std::vector<connection> &connections) {
-    while (true) {
-        // Your task goes here
-        int numConnections = 1;
-        for (int i = 0; i < numConnections; ++i) {
-            std::string ip1 = generateRandomIPAddress();
-            std::string ip2 = generateRandomIPAddress();
-            std::string connection = ip1 + "---" + ip2;
-            struct connection newConnection;
-            newConnection.connection_header = connection;
 
-            struct tcp_stream *a_tcp = new tcp_stream;
-            a_tcp->client.data = new char[300 + 1]; // +1 for null terminator
-            a_tcp->server.data = new char[300 + 1];
-
-            std::string client_data_str = "dsaddsadsadsasfkhasufghasiugbyehgfeyahgfydsagfyhdgahgfdahsjgfhdgha\n\nsdjhajshasdjhsdakjghasyhu\njdfsghhfjdgdjhsgsdfgfdshjsdf";
-            std::string server_data_str = "dsaddsadsadsasfkhasufghasiugbyehgfeyahgfydsagfyhdgahgfdahsjgfhdgha\n\nsdjhajshasdjhsdakjghasyhu\njdfsghhfjdgdjhsgsdfgfdshjsdf";
-
-            strcpy(a_tcp->client.data, client_data_str.c_str());
-            strcpy(a_tcp->server.data, server_data_str.c_str());
-
-            newConnection.a_tcp = a_tcp;
-            connections.push_back(newConnection);
-        }
-
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-}
 
 int
 main() {

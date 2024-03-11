@@ -13,11 +13,19 @@
 #include <cstring>// Assuming you have a connection struct or class
 #include <mutex>
 
-struct connection {
-    std::string  connection_header;
-    struct tcp_stream *a_tcp;
-    std::string protocol;
+struct side_info {
+    std::string ip;
+    std::string data;
     //TODO there might be going here an array of offsets
+};
+
+struct connection {
+    std::string connection_header;
+    std::string state;
+    struct side_info client;
+    struct side_info server;
+    std::string protocol;
+
 };
 
 
@@ -25,14 +33,14 @@ class connection_manager {
 public:
     connection_manager();
     void run();
-    static void tcp_callback(struct tcp_stream *a_tcp, void **arg);
-    std::vector<connection>& get_connections() {
+    static void tcp_callback(struct tcp_stream *a_tcp, struct connection **ptr);
+    std::vector<connection*>& get_connections() {
         return connections;
     }
 
 
 private:
-    std::vector<connection> connections;
+    std::vector<connection*> connections;
     int selected;
     int startIdx;
     int rows, cols;
