@@ -40,6 +40,7 @@ void connection_manager::run() {
                 attron(A_REVERSE); // Highlight the selected connection
             }
             std::string combinedString = connections[i]->connection_header + "    " + connections[i]->state;
+            std::string string = connections[i]->client.data.c_str();
             mvprintw(i - startIdx, 0, "%s", combinedString.c_str());
             if (i == selected) {
                 attroff(A_REVERSE); // Turn off highlight
@@ -109,8 +110,13 @@ void connection_manager::detail_screen() {
     struct connection *selected_connection = connections[selected];
 
     clear();
-
-    mvprintw(0, 0, "%s", selected_connection->client.data.c_str());
+    std::string httpRequest = selected_connection->client.data.c_str();
+    size_t pos = httpRequest.find("\r\n");
+    while (pos != std::string::npos) {
+        httpRequest.replace(pos, 2, "\n"); // Replace \r\n with \n
+        pos = httpRequest.find("\r\n", pos + 1);
+    }
+    mvprintw(0, 0, "%s", httpRequest.c_str());
 
     // Refresh the screen
     refresh();
@@ -197,6 +203,7 @@ void connection_manager::tcp_callback(struct tcp_stream *a_tcp, struct connectio
         if (a_tcp->client.count_new)
         {
             conn->server.data += std::string(a_tcp->client.data, a_tcp->client.count_new);
+            int i = 1;
         }
         else
         {
