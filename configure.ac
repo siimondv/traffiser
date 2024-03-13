@@ -10,6 +10,19 @@ dnl if test "$CXXFLAGS" = ""; then
 dnl CXXFLAGS="-Os -Wall"
 dnl fi
 
+PCAP_LIB="-lpcap"
+NCURSES_LIB="-lncurses"
+NIDS_LIB="-lnids"
+GLIB_LIB="-lglib-2.0"
+NET_LIB="-lnet"
+GTHREAD_LIB="-lgthread-2.0"
+
+AC_SUBST(PCAP_LIB)
+AC_SUBST(NCURSES_LIB)
+AC_SUBST(NIDS_LIB)
+AC_SUBST(GLIB_LIB)
+AC_SUBST(NET_LIB)
+AC_SUBST(GTHREAD_LIB)
 
 AC_CHECK_PROG(BASH_F, bash, "yes")
 echo "BASH_F= $BASH_F"

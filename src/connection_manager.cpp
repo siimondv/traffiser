@@ -3,7 +3,7 @@
 //
 
 #include "connection_manager.h"
-#include "../src/utilities.h"
+#include "utilities.h"
 #include <csignal>
 #include <cstring>
 #include <iostream>
@@ -40,7 +40,6 @@ void connection_manager::run() {
                 attron(A_REVERSE); // Highlight the selected connection
             }
             std::string combinedString = connections[i]->connection_header + "    " + connections[i]->state;
-            std::string string = connections[i]->client.data.c_str();
             mvprintw(i - startIdx, 0, "%s", combinedString.c_str());
             if (i == selected) {
                 attroff(A_REVERSE); // Turn off highlight

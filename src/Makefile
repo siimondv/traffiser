@@ -103,9 +103,13 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_traffiser_OBJECTS = main.$(OBJEXT)
+am_traffiser_OBJECTS = main.$(OBJEXT) connection_manager.$(OBJEXT)
 traffiser_OBJECTS = $(am_traffiser_OBJECTS)
 traffiser_LDADD = $(LDADD)
+am__DEPENDENCIES_1 =
+traffiser_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
 am__v_lt_0 = --silent
@@ -125,7 +129,8 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/generated/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/main.Po
+am__depfiles_remade = ./$(DEPDIR)/connection_manager.Po \
+	./$(DEPDIR)/main.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -211,7 +216,9 @@ ETAGS = etags
 EXEEXT = 
 FGREP = /usr/bin/grep -F
 FILECMD = file
+GLIB_LIB = -lglib-2.0
 GREP = /usr/bin/grep
+GTHREAD_LIB = -lgthread-2.0
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
@@ -230,6 +237,9 @@ MAINT = #
 MAKEINFO = ${SHELL} '/home/kali/network_sniffer/generated/missing' makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /usr/bin/mkdir -p
+NCURSES_LIB = -lncurses
+NET_LIB = -lnet
+NIDS_LIB = -lnids
 NM = /usr/bin/nm -B
 NMEDIT = 
 OBJDUMP = objdump
@@ -244,6 +254,7 @@ PACKAGE_TARNAME = traffiser
 PACKAGE_URL = 
 PACKAGE_VERSION = 0.1.0
 PATH_SEPARATOR = :
+PCAP_LIB = -lpcap
 RANLIB = ranlib
 SED = /usr/bin/sed
 SET_MAKE = 
@@ -304,7 +315,8 @@ target_alias =
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
-traffiser_SOURCES = main.cpp
+LDADD = $(PCAP_LIB) $(NCURSES_LIB) $(NIDS_LIB) $(GLIB_LIB) $(NET_LIB) $(GTHREAD_LIB)
+traffiser_SOURCES = main.cpp connection_manager.cpp 
 all: all-am
 
 .SUFFIXES:
@@ -398,6 +410,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+include ./$(DEPDIR)/connection_manager.Po # am--include-marker
 include ./$(DEPDIR)/main.Po # am--include-marker
 
 $(am__depfiles_remade):
@@ -559,7 +572,8 @@ clean: clean-am
 clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/main.Po
+		-rm -f ./$(DEPDIR)/connection_manager.Po
+	-rm -f ./$(DEPDIR)/main.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -605,7 +619,8 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/main.Po
+		-rm -f ./$(DEPDIR)/connection_manager.Po
+	-rm -f ./$(DEPDIR)/main.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
