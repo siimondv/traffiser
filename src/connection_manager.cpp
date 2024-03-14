@@ -7,11 +7,13 @@
 #include <csignal>
 #include <cstring>
 #include <iostream>
+#include <sstream>
 #include <thread>
 
 #define int_ntoa(x)    inet_ntoa(*((struct in_addr *)&x))
 
 connection_manager *connection_manager::instance = nullptr;
+bool connection_manager::continueLoop = true;
 
 connection_manager::connection_manager() {
     selected = 0;
@@ -64,6 +66,7 @@ void connection_manager::run() {
                 cleanup();
                 return;
             case -1:
+                //this is neccessary for making threads work
                 break;
             default:
                 cleanup();
@@ -100,31 +103,90 @@ void connection_manager::move_down() {
 }
 
 void connection_manager::go_inside() {
-    detail_screen();
+    continueLoop = true;
+    detail_screen(DetailType::Client);
     selected = 0;
     startIdx = 0;
 }
 
-void connection_manager::detail_screen() {
+std::vector<std::string> connection_manager::splitLines(const std::string& text){
+    std::vector<std::string> lines;
+    std::istringstream iss(text);
+    std::string line;
+    while (std::getline(iss, line)) {
+        lines.push_back(line);
+    }
+    return lines;
+}
+void connection_manager::display_text(const std::vector<std::string>& text, int topLine) {
+    clear();
+    int row = 0;
+    for (int i = topLine; i < std::min(topLine + rows, static_cast<int>(text.size())); ++i) {
+        mvprintw(row++, 0, "%s", text[i].c_str());
+    }
+    refresh();
+}
+
+void connection_manager::detail_screen(DetailType type) {
     struct connection *selected_connection = connections[selected];
 
     clear();
-    std::string httpRequest = selected_connection->client.data.c_str();
+    std::string httpRequest;
+    if(type == DetailType::Client)
+    {
+        httpRequest = selected_connection->client.data.c_str();
+    }
+    else
+    {
+        httpRequest = selected_connection->server.data.c_str();
+    }
+
     size_t pos = httpRequest.find("\r\n");
     while (pos != std::string::npos) {
         httpRequest.replace(pos, 2, "\n"); // Replace \r\n with \n
         pos = httpRequest.find("\r\n", pos + 1);
     }
-    mvprintw(0, 0, "%s", httpRequest.c_str());
+    mouseinterval(0);
 
+    std::vector<std::string> text_splitted = splitLines(httpRequest);
+    int top_line = 0;
+    display_text(text_splitted, top_line);
+
+    //mvprintw(0, 0, "%s", httpRequest.c_str());
+    mvprintw(rows - 1, 0, "A Move left   W Move right   F Exit");
     // Refresh the screen
     refresh();
 
-    while (true) {
+    MEVENT event;
+    while (continueLoop) {
         int ch = getch();
+        if (ch == KEY_MOUSE) {
+            if (getmouse(&event) == OK) {
+                if (event.bstate & BUTTON4_PRESSED) { // Scroll up
+                    if (top_line > 0) {
+                        --top_line;
+                        display_text(text_splitted, top_line);
+                    }
+                } else if (event.bstate & BUTTON5_PRESSED) { // Scroll down
+                    if (top_line < static_cast<int>(text_splitted.size()) - rows) {
+                        ++top_line;
+                        display_text(text_splitted, top_line);
+                    }
+                }
+            }
+        }
         if (ch == 'f') {
+            continueLoop = false;
             break;
         }
+        if (ch == 'w' || ch == 'W') {
+            //TODO because this method is recursive, the variables are not deleted (should fix it)
+            detail_screen(DetailType::Server);
+        }
+        if (ch == 'a' || ch == 'A') {
+            detail_screen(DetailType::Client);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(7));
     }
 
 }
@@ -142,7 +204,7 @@ public:
     connection_manager_not_initialized() : common_exception("connection manager not initialized") {}
 };
 
-char *connection_manager::adres(struct tuple4 addr) {
+char *tcp_handler::adres(struct tuple4 addr) {
     static char buf[256];
     char *ip = int_ntoa(addr.saddr);
     strcpy(buf, ip);
@@ -154,15 +216,15 @@ char *connection_manager::adres(struct tuple4 addr) {
 }
 
 
-void connection_manager::tcp_callback(struct tcp_stream *a_tcp, struct connection **ptr) {
-    check(instance != nullptr, connection_manager_not_initialized());
+void tcp_handler::tcp_callback(struct tcp_stream *a_tcp, struct connection **ptr) {
+    check(connection_manager::get_instance() != nullptr, connection_manager_not_initialized());
 
     if (a_tcp->nids_state == NIDS_JUST_EST) {
 
         struct connection *new_connection = new connection();
         new_connection->state = (char *) "established";
         new_connection->connection_header = adres(a_tcp->addr);
-        std::vector<connection *> &connections = instance->get_connections();
+        std::vector<connection *> &connections = connection_manager::get_instance()->get_connections();
         connections.push_back(new_connection);
         *ptr = new_connection;
 

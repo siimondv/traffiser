@@ -27,33 +27,57 @@ struct connection {
     std::string protocol;
 
 };
+enum class DetailType {
+    Client,
+    Server
+};
 
 
 class connection_manager {
 public:
     connection_manager();
+
+
+    static connection_manager* get_instance() {
+        return instance;
+    }
+
     void run();
-    static void tcp_callback(struct tcp_stream *a_tcp, struct connection **ptr);
-    std::vector<connection*>& get_connections() {
+
+    std::vector<connection *> &get_connections() {
         return connections;
     }
 
 
 private:
-    std::vector<connection*> connections;
+    static connection_manager *instance;
+    std::vector<connection *> connections;
     int selected;
     int startIdx;
     int rows, cols;
 
     void move_up();
+
     void move_down();
+
     void go_inside();
-    void detail_screen();
+
+    static bool continueLoop;
+    std::vector<std::string> splitLines(const std::string& text);
+    void display_text(const std::vector<std::string>& text, int topLine);
+    void detail_screen(DetailType type);
+
+
     void cleanup();
 
-    static char * adres(struct tuple4 addr);
-    static connection_manager* instance;
+};
 
+class tcp_handler {
+public:
+    static void tcp_callback(struct tcp_stream *a_tcp, struct connection **ptr);
+
+private:
+    static char * adres(struct tuple4 addr);
 };
 
 #endif //NETWORK_SNIFFER_CONNECTION_MANAGER_H

@@ -28,7 +28,7 @@ main ()
         fprintf(stderr, "%s\n", nids_errbuf);
         exit(1);
     }
-    nids_register_tcp(reinterpret_cast<void *>(connection_manager::tcp_callback));
+    nids_register_tcp(reinterpret_cast<void *>(tcp_handler::tcp_callback));
 
     nids_chksum_ctl chksumctl[1];
     chksumctl[0].netaddr = ip_to_ulong(0, 0, 0, 0);
